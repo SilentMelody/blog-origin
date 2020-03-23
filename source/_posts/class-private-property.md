@@ -3,7 +3,6 @@ title: Class中的私有属性
 date: 2020-01-01 16:31:44
 tags: [JavaScript, ES6, Class]
 categories: 开发
-index_img: https://upload-images.jianshu.io/upload_images/12319573-d161e20ae1b8c1d7.png
 ---
 
 ### 私有属性

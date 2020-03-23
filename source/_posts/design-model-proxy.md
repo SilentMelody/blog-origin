@@ -1,161 +1,216 @@
 ---
-title: 设计模式系列笔记-单例模式
-date: 2019-09-12 21:36:43
+title: 设计模式系列笔记-代理模式
+date: 2019-09-17 23:24:11
 tags: [JS, JavaScript, 设计模式]
 categories: 开发
-index_img: https://upload-images.jianshu.io/upload_images/12319573-d161e20ae1b8c1d7.png
 ---
 
-
 *写在前面：本系列文章内容为《JavaScript设计模式与开发实践》一书学习笔记，感谢作者曾探*
-## 单例模式
-定义：保证一个类仅有一个实例，并可以全局访问该实例
-举例：线程池、全局缓存、window对象等，或者全局的弹框组件、登录组件等
+## 代理模式
+代理模式是为一个对象提供一个代用品或占位符，以便控制对它的访问
 
-### 1.实现单例模式
-思路：用一个变量来标志当前是否已经为某个类创建过对象，如果是，则在下一次获取该类的实例时，直接返回之前创建的对象
-示例：
-```
-const Singleton = function(name) {
-  this.name = name;
-  this.instance = null;
-};
-Singleton.prototype.getName = function() {
-  alert(this.name);
-};
-Singleton.getInstance = function(name) {
-  if (!this.instance) {
-    this.instance = new Singleton(name);
-  }
-  return this.instance;
-};
-const a = Singleton.getInstance('sven1');
-const b = Singleton.getInstance('sven2');
-alert(a === b); // true
-```
+代理模式的关键是，当客户不方便直接访问一个对象或者不满足需要的时候，提供一个替身对象来控制对这个对象的访问，客户实际上访问的是替身对象。替身对象对请求做出一些处理之后，再把请求转交给本体对象
 
-### 2.透明的单例模式
-透明的单例模式: 用户从这个单例类中创建对象的时候，可以像使用其他任何普通类一样
-```
-// 透明的单例模式
-const CreateDiv = (function() {
-  let instance;
-  const CreateDiv = function(html) {
-    if (instance) {
-      return instance;
-    }
-    this.html = html;
-    this.init();
-    return instance = this;
-  };
-  CreateDiv.prototype.init = function() {
-    const div = document.createElement('div');
-    div.innerHTML = this.html;
-    document.body.appendChild(div);
-  };
-  return CreateDiv;
-})();
-const a = new CreateDiv('sven1');
-const b = new CreateDiv('sven2');
-alert(a === b); // true
-```
-但是这种写法也有缺点：CreateDiv 的构造函数实际上负责了两件事情。第一是创建对象和执行初始化init 方法，第二是保证只有一个对象，这种多重职责使这个构造函数看起来很奇怪
+例如 A 访问 B
+非代理模式：A —> B
+用代理模式：A —> C —> B
 
-### 3.用代理实现单例模式
-通过引入代理的方式，我们改造上面的例子，跟之前不同的是，现在我们把负责管理单例的逻辑移到了代理类proxySingletonCreateDiv 中。这样一来，CreateDiv 就变成了一个普通的类，它跟proxySingletonCreateDiv 组合起来可以达到单例模式的效果。
+### 1.代理模式实现
+举例：小明追求 A，B 为两人共同好友，小明让 B 帮他向 A 送花
 ```
-// 代理实现单例模式
-class CreateDiv {
-  constructor(html) {
-    this.html = html;
-    this.init();
+var Flower = function() {};
+var xiaoming = {
+  sendFlower: function(target) {
+    var flower = new Flower();
+    target.receiveFlower(flower);
   }
 };
-CreateDiv.prototype.init = function() {
-  const div = document.createElement('div');
-  div.innerHTML = this.html;
-  document.body.appendChild(div);
-};
-// 引入代理方法proxySingletonCreateDiv：
-const ProxySingletonCreateDiv = (function() {
-  let instance;
-  return (html) => {
-    if (!instance) {
-      instance = new CreateDiv(html);
-    }
-    return instance;
+var B = {
+  receiveFlower: function(flower) {
+    A.receiveFlower(flower);
   }
-})();
-const a = ProxySingletonCreateDiv('sven1');
-const b = ProxySingletonCreateDiv('sven2');
-alert(a === b);
+};
+var A = {
+  receiveFlower: function(flower) {
+    console.log('收到花 ' + flower);
+  }
+};
+xiaoming.sendFlower(B);
 ```
-### 4.惰性单例
-惰性单例指的是在需要的时候才创建对象实例
-以网页QQ的登录框举例
+可以发现此处的代理没有任何作用，这时候我们添加设定，小明希望在 A 心情好的时候送花表白，但是不了解 A 的心情变化，所以让比较了解 A 的 B 帮忙送花
 ```
-// 惰性单例
-var createLoginLayer = (function() {
-  var div;
-  return function() {
-    if (!div) {
-      div = document.createElement('div');
-      div.innerHTML = '我是登录浮窗';
-      div.style.display = 'none';
-      document.body.appendChild(div);
+// 心情好的时候再送花
+var Flower = function() {};
+var xiaoming = {
+  sendFlower: function(target) {
+    var flower = new Flower();
+    target.receiveFlower(flower);
+  }
+};
+var B = {
+  receiveFlower: function(flower) {
+    A.listenGoodMood(function() { // 监听 A 的好心情
+      A.receiveFlower(flower);
+    });
+  }
+};
+var A = {
+  receiveFlower: function(flower) {
+    console.log('收到花 ' + flower);
+  },
+  listenGoodMood: function(fn) {
+    setTimeout(function() { // 假设 10 秒之后 A 的心情变好
+      fn();
+    }, 10000);
+  }
+};
+xiaoming.sendFlower(B);
+```
+
+### 2.保护代理和虚拟代理
+保护代理：代理 B 可以帮助 A 过滤掉一些请求，一些请求就可以直接在代理 B处被拒绝掉。这种代理叫作保护代理
+虚拟代理：虚拟代理把一些开销很大的对象，延迟到真正需要它的时候才去创建，以送花举例，使用虚拟代理可以将买花这一操作放到需要的时候再进行，防止过早的买花，等 A 心情好的时候已经不新鲜了
+```
+var B = {
+  receiveFlower: function(flower) {
+    A.listenGoodMood(function() { // 监听 A 的好心情
+      var flower = new Flower(); // 延迟创建 flower 对象
+      A.receiveFlower(flower);
+    });
+  }
+};
+```
+护代理用于控制不同权限的对象对目标对象的访问，但在 JavaScript 并不容易实现保护代理，因为我们无法判断谁访问了某个对象。而虚拟代理是最常用的一种代理模式
+
+### 3.虚拟代理实现图片预加载
+引入代理对象 proxyImage，在图片被真正加载好之前，页面中出现 loading 的 gif 动画, 来提示用户图片正在加载
+```
+var myImage = (function() {
+  var imgNode = document.createElement('img');
+  document.body.appendChild(imgNode);
+  return {
+    setSrc: function(src) {
+      imgNode.src = src;
     }
-    return div;
   }
 })();
-document.getElementById('loginBtn').onclick = function() {
-  var loginLayer = createLoginLayer();
-  loginLayer.style.display = 'block';
-};
+var proxyImage = (function() {
+  var img = new Image;
+  img.onload = function() {
+    myImage.setSrc(this.src);
+  }
+  return {
+    setSrc: function(src) {
+      myImage.setSrc('/loading.gif');
+      img.src = src;
+    }
+  }
+})();
+proxyImage.setSrc('http://xxxx.jpg');
 ```
-这种方案存在的问题：
-- 这段代码仍然是违反单一职责原则的，创建对象和管理单例的逻辑都放在 createLoginLayer对象内部
-- 如果我们下次需要创建页面中唯一的 iframe，或者 script 标签，用来跨域请求数据，就必须得如法炮制，把 createLoginLayer 函数几乎照抄一遍
+上面这个程序，我们并没有改变或者增加 MyImage 的接口，但是通过代理对象，实际上给系统添加了新的行为，符合开放—封闭原则的
+给 img 节点设置 src 和图片预加载这两个功能，被隔离在两个对象里，它们可以各自变化而不影响对方
 
-### 5.通用的惰性单例
-管理单例的逻辑其实是完全可以抽象出来的，这个逻辑始终是一样的：用一个变量来标志是否创建过对象，如果是，则在下次直接返回这个已经创建好的对象
-现在我们就把如何管理单例的逻辑从原来的代码中抽离出来，这些逻辑被封装在 getSingle
-函数内部，创建对象的方法 fn 被当成参数动态传入 getSingle 函数
+### 4.代理和本体接口的一致性
+在客户看来，代理对象和本体是一致的， 代理接手请求的过程对于用户来说是透明的，用户并不清楚代理和本体的区别
+作用：
+- 用户可以放心地请求代理，他只关心是否能得到想要的结果
+- 在任何使用本体的地方都可以替换成使用代理
+
+如果代理对象和本体对象都为一个函数（函数也是对象），函数必然都能被执行，则可以认为它们也具有一致的“接口”
+例如：
 ```
-var getSingle = function(fn) {
-  var result;
-  return function() {
-    return result || (result = fn.apply(this, arguments));
+var myImage = (function() {
+  var imgNode = document.createElement('img');
+  document.body.appendChild(imgNode);
+  return function(src) {
+    imgNode.src = src;
+  }
+})();
+var proxyImage = (function() {
+  var img = new Image;
+  img.onload = function() {
+    myImage(this.src);
+  }
+  return function(src) {
+    myImage('/loading.gif');
+    img.src = src;
+  }
+})();
+proxyImage('http://xxx.jpg');
+```
+
+### 5.代理模式其他应用
+##### 1. 虚拟代理合并HTTP请求
+可以通过一个代理函数来收集一段时间之内的请求， 最后一次性发送给服务器
+##### 2. 缓存代理
+编写一个简单的求乘积的程序
+```
+var mult = function(){
+  console.log( '开始计算乘积' );
+  var a = 1;
+  for ( var i = 0, l = arguments.length; i < l; i++ ){
+    a = a * arguments[i];
+  }
+  return a;
+};
+mult( 2, 3 ); // 输出：6
+mult( 2, 3, 4 ); // 输出：24 
+```
+
+现在加入缓存代理函数：
+```
+var proxyMult = (function(){
+  var cache = {};
+  return function(){
+    var args = Array.prototype.join.call( arguments, ',' );
+    if ( args in cache ){
+      return cache[ args ];
+    }
+    return cache[ args ] = mult.apply( this, arguments );
+  }
+})();
+proxyMult( 1, 2, 3, 4 ); // 输出：24
+proxyMult( 1, 2, 3, 4 ); // 输出：24 
+```
+当我们第二次调用 proxyMult( 1, 2, 3, 4 )的时候，本体 mult 函数并没有被计算，proxyMult直接返回了之前缓存好的计算结果
+通过增加缓存代理的方式，mult 函数可以继续专注于自身的职责——计算乘积，缓存的功能是由代理对象实现的
+
+##### 3.用高阶函数动态创建代理
+通过传入高阶函数这种更加灵活的方式，可以为各种计算方法创建缓存代理
+```
+/**************** 计算乘积 *****************/
+var mult = function(){
+  var a = 1;
+  for ( var i = 0, l = arguments.length; i < l; i++ ){
+    a = a * arguments[i];
+  }
+  return a;
+};
+/**************** 计算加和 *****************/
+var plus = function(){
+  var a = 0;
+  for ( var i = 0, l = arguments.length; i < l; i++ ){
+    a = a + arguments[i];
+  }
+  return a;
+};
+/**************** 创建缓存代理的工厂 *****************/
+var createProxyFactory = function( fn ){
+  var cache = {};
+  return function(){
+    var args = Array.prototype.join.call( arguments, ',' );
+    if ( args in cache ){
+      return cache[ args ];
+    }
+    return cache[ args ] = fn.apply( this, arguments );
   }
 };
+var proxyMult = createProxyFactory( mult ),
+  proxyPlus = createProxyFactory( plus );
+alert ( proxyMult( 1, 2, 3, 4 ) ); // 输出：24
+alert ( proxyMult( 1, 2, 3, 4 ) ); // 输出：24
+alert ( proxyPlus( 1, 2, 3, 4 ) ); // 输出：10
+alert ( proxyPlus( 1, 2, 3, 4 ) ); // 输出：10 
 ```
-接下来将用于创建登录浮窗的方法用参数 fn 的形式传入 getSingle，我们不仅可以传入createLoginLayer，还能传入 createScript、createIframe、createXhr 等。之后再让 getSingle 返回一个新的函数，并且用一个变量 result 来保存 fn 的计算结果。result 变量因为身在闭包中，它永远不会被销毁。在将来的请求中，如果 result 已经被赋值，那么它将返回这个值。代码如下：
-```
-var createLoginLayer = function() {
-  var div = document.createElement('div');
-  div.innerHTML = '我是登录浮窗';
-  div.style.display = 'none';
-  document.body.appendChild(div);
-  return div;
-};
-var createSingleLoginLayer = getSingle(createLoginLayer);
-document.getElementById('loginBtn').onclick = function() {
-  var loginLayer = createSingleLoginLayer();
-  loginLayer.style.display = 'block';
-};
-```
-我们再试试创建唯一的 iframe 用于动态加载第三方页面：
-```
-var createSingleIframe = getSingle(function() {
-  var iframe = document.createElement('iframe');
-  document.body.appendChild(iframe);
-  return iframe;
-});
-document.getElementById('loginBtn').onclick = function() {
-  var loginLayer = createSingleIframe();
-  loginLayer.src = 'http://baidu.com';
-};
-```
-在这个例子中，我们把创建实例对象的职责和管理单例的职责分别放置在两个方法里，这两个方法可以独立变化而互不影响，当它们连接在一起的时候，就完成了创建唯一实例对象的功能
-
-### 6.小节
-在 getSinge 函数中，实际上也提到了闭包和高阶函数的概念。单例模式是一种简单但非常实用的模式，特别是惰性单例技术，在合适的时候才创建对象，并且只创建唯一的一个，使用了代理模式和单一职责原则，创建对象和管理单例的职责被分布在两个不同的方法中
+这些计算方法被当作参数传入一个专门用于创建缓存代理的工厂中， 这样一来，我们就可以为乘法、加法、减法等创建缓存代理

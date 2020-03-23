@@ -3,7 +3,6 @@ title: Class中的super简析
 date: 2020-01-02 21:02:44
 tags: [JavaScript, ES6, Class]
 categories: 开发
-index_img: https://upload-images.jianshu.io/upload_images/12319573-d161e20ae1b8c1d7.png
 ---
 
 ### super当作函数使用

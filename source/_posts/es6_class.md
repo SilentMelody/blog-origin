@@ -3,7 +3,6 @@ title: 理解ES6中的Class（摘抄）
 date: 2019-12-22 21:15:32
 tags: [JavaScript, ES6, Class]
 categories: 开发
-index_img: https://upload-images.jianshu.io/upload_images/12319573-d161e20ae1b8c1d7.png
 ---
 
 **！！本文摘抄自 [https://www.jianshu.com/p/86267fab4878](https://www.jianshu.com/p/86267fab4878)，转载请注明原出处**
