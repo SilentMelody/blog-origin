@@ -1,6 +1,6 @@
 ---
 title: Class中的super简析
-date: 2020-01-02 21:02:44
+date: 2018-11-21 19:29:25
 tags: [JavaScript, ES6, Class]
 categories: 开发
 ---

@@ -1,6 +1,6 @@
 ---
 title: 理解ES6中的Class（摘抄）
-date: 2019-12-22 21:15:32
+date: 2019-04-02 21:12:40
 tags: [JavaScript, ES6, Class]
 categories: 开发
 ---

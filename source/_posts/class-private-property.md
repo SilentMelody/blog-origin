@@ -1,6 +1,6 @@
 ---
 title: Class中的私有属性
-date: 2020-01-01 16:31:44
+date: 2019-03-01 16:22:05
 tags: [JavaScript, ES6, Class]
 categories: 开发
 ---

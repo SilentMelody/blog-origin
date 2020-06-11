@@ -1,11 +1,28 @@
 ---
-title: CSS盒模型与正常流排版
-date: 2019-02-13 20:33:17
-tags: [HTML, CSS, 盒模型]
+title: 关于Webpack
+date: 2020-03-15 19:41:07
+tags: [webpack]
 categories: 开发
 ---
 
-## 一、盒模型
+**！！本文摘抄自 [https://www.cnblogs.com/gaoht/p/11310365.html](https://www.cnblogs.com/gaoht/p/11310365.html)，转载请注明原出处**
+
+## 一、目录
+1. webpack与grunt、gulp的不同？
+2. 与webpack类似的工具还有哪些？谈谈你为什么最终选择（或放弃）使用webpack？
+3. 有哪些常见的Loader？他们是解决什么问题的？
+4. 有哪些常见的Plugin？他们是解决什么问题的？
+5. Loader和Plugin的不同？
+6. webpack的构建流程是什么?从读取配置到输出文件这个过程尽量说全
+7. 是否写过Loader和Plugin？描述一下编写loader或plugin的思路？
+8. webpack的热更新是如何做到的？说明其原理？
+9. 如何利用webpack来优化前端性能？（提高性能和体验）
+10. 如何提高webpack的构建速度？
+11. 怎么配置单页应用？怎么配置多页应用？
+12. npm打包时需要注意哪些？如何利用webpack来更好的构建？
+13. 如何在vue项目中实现按需加载？
+
+
 盒子模型从独立盒子结构以及多盒之间的关系两方面理解
 ### 盒子模型概念
 独立盒子模型由：内容、border、padding、margin 四部分组成

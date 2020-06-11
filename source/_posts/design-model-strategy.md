@@ -77,7 +77,7 @@ HTML部分
   <button>提交</button>
 </form>
 ```
-1. 我们先把校验逻辑都封装成策略对象
+1.我们先把校验逻辑都封装成策略对象
 ```
 var strategies = {
   isNonEmpty: function(value, errorMsg) { // 不为空
@@ -97,7 +97,7 @@ var strategies = {
   }
 };
 ```
-2. 接下来我们期望的使用方法
+2.接下来我们期望的使用方法
 ```
 var validataFunc = function() {
   var validator = new Validator(); // 创建一个 validator 对象
@@ -117,7 +117,7 @@ registerForm.onsubmit = function() {
   }
 };
 ```
-3. 实现我们需要的 Validator 类
+3.实现我们需要的 Validator 类
 ```
 var Validator = function() {
   this.cache = []; // 保存校验规则
